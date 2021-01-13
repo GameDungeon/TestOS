@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stddef.h>
-#include <other/stivale2.h>
+#include <src/kernel/other/stivale2.h>
 
 #include "display/fb.h"
 

@@ -3,7 +3,11 @@ LD         = ld
 KERNEL_HDD = disk.hdd
 OS_NAME    = testos
 
+TARGET := $(OS_NAME).elf
+
 CFLAGS = -O2 -pipe -Wall -Wextra
+
+#----------------NO TOUCHY---------------------
 
 CHARDFLAGS := $(CFLAGS)               \
 	-std=gnu99                     \
@@ -26,15 +30,43 @@ LDHARDFLAGS := $(LDFLAGS)        \
 	-z max-page-size=0x1000   \
 	-T src/linker.ld
 
+LDINTERNALFLAGS :=  \
+	-Tsrc/linker.ld \
+	-static     \
+	-nostdlib   \
+	-no-pie
+ 
+INTERNALCFLAGS  :=           \
+	-I.                  \
+	-ffreestanding       \
+	-fno-stack-protector \
+	-fno-pic             \
+	-mno-80387           \
+	-mno-mmx             \
+	-mno-3dnow           \
+	-mno-sse             \
+	-mno-sse2            \
+	-mcmodel=kernel      \
+	-mno-red-zone
+
+#-------------------------
+
+CFILES := $(shell find ./ -type f -name '*.c')
+OBJ    := $(CFILES:.c=.o)
+ 
+
 .PHONY: clean all run
 
-all: clean kernel/$(OS_NAME).elf $(KERNEL_HDD) run
+all: clean $(TARGET) $(KERNEL_HDD) run
 
 run: $(KERNEL_HDD)
 	qemu-system-x86_64 -m 2G -hda $(KERNEL_HDD)
 
-kernel/$(OS_NAME).elf:
-	$(MAKE) -C $(OS_NAME)
+$(TARGET): $(OBJ)
+	$(LD) $(LDINTERNALFLAGS) $(OBJ) -o $@
+ 
+%.o: %.c
+	$(CC) $(CFLAGS) $(INTERNALCFLAGS) -c $< -o $@
 
 $(KERNEL_HDD): boot/limine-install 
 	rm -f $(KERNEL_HDD)
@@ -42,15 +74,9 @@ $(KERNEL_HDD): boot/limine-install
 	parted -s $(KERNEL_HDD) mklabel gpt
 	parted -s $(KERNEL_HDD) mkpart primary 2048s 100%
 	echfs-utils -g -p0 $(KERNEL_HDD) quick-format 512
-	echfs-utils -g -p0 $(KERNEL_HDD) import kernel/$(OS_NAME).elf $(OS_NAME).elf
+	echfs-utils -g -p0 $(KERNEL_HDD) import src/kernel/$(OS_NAME).elf $(OS_NAME).elf
 	echfs-utils -g -p0 $(KERNEL_HDD) import boot/limine.cfg  limine.cfg
 	boot/limine-install $(KERNEL_HDD)
 
-kernel/$(OS_NAME).elf:
-	cd kernel && make 
-	cd ../
-
 clean:
-	rm -f $(KERNEL_HDD)
-	cd kernel && make clean
-	cd ../
+	rm -rf $(TARGET) $(OBJ) $(KERNEL_HDD)

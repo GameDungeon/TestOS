@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stddef.h>
-#include <other/stivale2.h>
+#include <src/kernel/other/stivale2.h>
 
 #include "../other/kernel.h"
 
@@ -40,7 +40,7 @@ void put_pixel(int x, int y)
 
 void print_word(char string[])
 {
-    for (int i = 0; i == 100; i++)
+    for (int i = 0; i < 100; i++)
     {
         put_pixel(i, i);
     }
