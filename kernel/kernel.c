@@ -36,12 +36,7 @@ void _start(struct stivale2_struct *stivale2_struct) {
 
     fb_init(stivale2_struct);
 
-    //print_word("Hello World!");
-
-    for (int i = 0; i == 100; i++)
-    {
-        put_pixel(i, i);
-    }
+    print_word("Hello World!");
 
     for (;;) {
         asm ("hlt");
