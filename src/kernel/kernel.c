@@ -31,12 +31,11 @@ void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, uint64_t id) {
     }
 }
 
-
 void _start(struct stivale2_struct *stivale2_struct) {
 
     fb_init(stivale2_struct);
 
-    print_word("Hello World!");
+    print_word("Hello World");
 
     for (;;) {
         asm ("hlt");

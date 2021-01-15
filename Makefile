@@ -47,7 +47,8 @@ INTERNALCFLAGS  :=           \
 	-mno-sse             \
 	-mno-sse2            \
 	-mcmodel=kernel      \
-	-mno-red-zone
+	-mno-red-zone		 \
+	-masm=intel
 
 #-------------------------
 
@@ -74,7 +75,7 @@ $(KERNEL_HDD): boot/limine-install
 	parted -s $(KERNEL_HDD) mklabel gpt
 	parted -s $(KERNEL_HDD) mkpart primary 2048s 100%
 	echfs-utils -g -p0 $(KERNEL_HDD) quick-format 512
-	echfs-utils -g -p0 $(KERNEL_HDD) import src/kernel/$(OS_NAME).elf $(OS_NAME).elf
+	echfs-utils -g -p0 $(KERNEL_HDD) import $(OS_NAME).elf $(OS_NAME).elf
 	echfs-utils -g -p0 $(KERNEL_HDD) import boot/limine.cfg  limine.cfg
 	boot/limine-install $(KERNEL_HDD)
 
