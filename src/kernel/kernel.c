@@ -1,13 +1,13 @@
 #include <stdint.h>
 #include <stddef.h>
-#include <src/kernel/other/stivale2.h>
 
+#include "include/stivale2.h"
 #include "display/fb.h"
 
 
 static uint8_t stack[4096];
 
-__attribute__((section(".stivale2hdr"), used))
+__attribute__((used, section(".stivale2hdr"),))
 struct stivale2_header stivale_hdr = {
     .entry_point = 0,
     .stack = (uintptr_t)stack + sizeof(stack),
@@ -35,7 +35,7 @@ void _start(struct stivale2_struct *stivale2_struct) {
 
     fb_init(stivale2_struct);
 
-    print_word("Hello World");
+    print_word("Hello World\nHi FU\b\b");
 
     for (;;) {
         asm ("hlt");

@@ -2,7 +2,6 @@
 
 #ifndef DF_H
 #define DF_H
-
 uint8_t fontBitmap[] = {
 	// 32 0x20 ' '
 	0b00000000,
