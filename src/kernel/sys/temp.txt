@@ -1,8 +1,6 @@
 #include <stdint.h>
 #include "gdt.h"
 
-extern void gdt_flush(uint64_t);
-
 static struct gdt_entry gdt[3];
 static struct gdt_ptr gp;
 
@@ -17,6 +15,24 @@ static void gdt_set_gate(int32_t number, uint32_t base, uint32_t limit, uint8_t 
     gdt[number].access = access;
 }
 
+void gdt_flush() {
+    asm volatile(
+        "lgdt %0\n\t"     
+        "mov ax, 0x10\n\t" // 0x10 is the offset in the GDT to our data segment
+        "mov ds, ax\n\t"
+        "mov es, ax\n\t"
+        "mov fs, ax\n\t"
+        "mov gs, ax\n\t"
+        "mov ss, ax\n\t"
+        "pushq 0x08\n\t"   // new code segment selector
+        "pushq flush2\n\t" // function to execute next
+        "retfq\n\t"
+        "flush2:\n\t"
+        :
+        : "m"(gp)
+        :);
+}
+
 void gdt_init()
 {
     /* Setup the GDT pointer and limit */
@@ -26,5 +42,5 @@ void gdt_init()
     gdt_set_gate(0, 0, 0x00000000, 0x00, 0x00);
     gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
     gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);
-    gdt_flush((uint64_t)&gp);
 }
+

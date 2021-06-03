@@ -1,4 +1,6 @@
 CC         = gcc
+AS        = nasm
+
 LD         = ld
 KERNEL_HDD = disk.hdd
 OS_NAME    = testos
@@ -7,7 +9,7 @@ TARGET := $(OS_NAME).elf
 
 CFLAGS = -O2 -pipe -Wall -Wextra
 
-#----------------NO TOUCHY---------------------
+#----------------Don't Touch---------------------
 
 CHARDFLAGS := $(CFLAGS)               \
 	-std=gnu99                     \
@@ -53,21 +55,24 @@ INTERNALCFLAGS  :=           \
 #-------------------------
 
 CFILES := $(shell find ./ -type f -name '*.c')
-OBJ    := $(CFILES:.c=.o)
+ASMFILES := $(shell find ./ -type f -name '*.asm')
+OBJ    := $(CFILES:.c=.o) $(ASMFILES:.asm=.o)
  
-
-.PHONY: clean all run
+.PHONY: clean all run debug
 
 all: clean $(TARGET) $(KERNEL_HDD) run
 
 run: $(KERNEL_HDD)
-	qemu-system-x86_64 -m 2G -hda $(KERNEL_HDD)
+	qemu-system-x86_64 -m 2G -drive file=$(KERNEL_HDD),index=0,media=disk,format=raw
 
 $(TARGET): $(OBJ)
 	$(LD) $(LDINTERNALFLAGS) $(OBJ) -o $@
  
 %.o: %.c
 	$(CC) $(CFLAGS) $(INTERNALCFLAGS) -c $< -o $@
+
+%.o: %.asm
+	${AS} -felf64 $< -o $@
 
 $(KERNEL_HDD): boot/limine-install 
 	rm -f $(KERNEL_HDD)
@@ -81,3 +86,6 @@ $(KERNEL_HDD): boot/limine-install
 
 clean:
 	rm -rf $(TARGET) $(OBJ) $(KERNEL_HDD)
+
+debug:
+	qemu-system-x86_64 -m 2G -hda $(KERNEL_HDD) -no-reboot -monitor stdio -d int -D qemu.log -no-shutdown

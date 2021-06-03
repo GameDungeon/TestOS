@@ -42,7 +42,7 @@ void _start(struct stivale2_struct *stivale2_struct)
 {    
     init(stivale2_struct);
 
-    print_word("Hello World\nHi FU\b\b");
+    print_word("Hello World\nHi");
 
     for (;;) {
         asm ("hlt");
