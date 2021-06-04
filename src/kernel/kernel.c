@@ -3,7 +3,7 @@
 
 #include "include/stivale2.h"
 #include "display/fb.h"
-#include "sys/gdt.h"
+#include "sys/init_mem.h"
 
 
 static uint8_t stack[4096];
@@ -30,12 +30,6 @@ void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, uint64_t id) {
  
         current_tag = (void *)current_tag->next;
     }
-}
-
-void init(struct stivale2_struct *stivale2_struct)
-{
-    fb_init(stivale2_struct);
-    gdt_init();
 }
 
 void _start(struct stivale2_struct *stivale2_struct)
